@@ -1,14 +1,18 @@
 $(document).ready(function(){
 
-	var animals=["panda" ];
-
+	var animals=["panda", "lion", "fish", "cat", "puppy", "tiger", "bird"];
+	var results;
+    renderButtons();
     //Function for dumping the JSON content for each button into the div
-    function displayAnimalsInfo(){	
-    	var animal = $(this).attr("data-name");
-    	console.log("animal is " + animal);
+    // function displayAnimalsInfo(){	
+    	$(document).on("click", ".animal", function(){
+    		var animal = $(this).attr("data-name");
+    		$('#animals-view').empty();
+    		renderButtons();
+    	// console.log("animal is " + animal);
 	//Constructing a URL to search Giphy for the animal
 	var queryURL = "https://api.giphy.com/v1/gifs/search?q=" +
-	animals + "&api_key=ju0vCjB7txFaoRlWvQciiUd2KDlBbUnW&limit=10";
+	animal + "&api_key=ju0vCjB7txFaoRlWvQciiUd2KDlBbUnW&limit=10";
 
 	//Performing the AJAX GET request
 	$.ajax({
@@ -17,7 +21,7 @@ $(document).ready(function(){
 	}).done(function(response) {
 		// $("#animals-view").text(JSON.stringify(response));
 		console.log(response);
-		var results = response.data;
+		results = response.data;
 		for (var i = 0; i < results.length; i++) {
 
 	  	//Creating div and having gifs inside 
@@ -28,12 +32,13 @@ $(document).ready(function(){
 	  	var p = $("<p>").text("Rating: " + objRating);
 
 	  	//Creating and storing an image tag
-	  	var animalImage = $("<img>");
+	  	// var animalImage = $("<img>");
+	  	var animalImage = $('<img class="images_div" src="'+results[i].images.downsized_still.url+'" data-state="still" number="'+i+'">')
 
 
 	  	//Setting the src attribute of the image to a property pulled off teh result item
-	  	animalImage.attr("src", results[i].images.original.url);
-	  	console.log(animalImage);
+	  	// animalImage.attr("src", results[i].images.original.url);
+	  	// console.log(animalImage);
 
 	  	//Appending the paragraph and image tag to the animalDiv
 	  	animalDiv.append(p);
@@ -43,7 +48,7 @@ $(document).ready(function(){
 	  	$("#animals-view").prepend(animalDiv);
 	  }
 	});
-}
+})
 
 
 //Function for displaying movie data
@@ -73,7 +78,7 @@ $("#add-animals").on("click", function(event)
 	event.preventDefault();
 	//This line grabs the input from teh textbox
 	var animal = $("#animal-input").val().trim();
-    
+
     //so user won't be able to add a blank button
     if (animal == ""){
     	return false; 
@@ -86,14 +91,30 @@ $("#add-animals").on("click", function(event)
 	renderButtons();
 });
 
+$(document).on("click",".images_div",function pausing_image(){
+	var data_state = $(this).attr("data-state");
+    // console.log(data_state);
+    var index = $(this).attr("number");    
+    if (data_state=="still"){
+    	$(this).attr("data-state","animate");
+    	$(this).attr("src",results[index].images.downsized.url);
+    }
+    else if (data_state=="animate"){
+    	$(this).attr("data-state","still");
+    	$(this).attr("src",results[index].images.downsized_still.url);
+    }
+})
+
 //Function for displaying the animal info
 //Using $(document).on instead of $(".movie").on to add event listenersto dynamically generated elemts
-$(document).on("click", ".animal", displayAnimalsInfo);
-$(".animal").on("click", displayAnimalsInfo);
+// $(document).on("click", ".animal", displayAnimalsInfo);
+// $(".animal").on("click", displayAnimalsInfo);
 
 //Calling renderButtons function to display the initial buttons
-renderButtons();
 
 
+// $('body').on('click', '.animals-view',function(){
+//     console.log('clicked!');
+// });
 
 });
